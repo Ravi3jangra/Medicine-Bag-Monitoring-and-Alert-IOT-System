@@ -1,0 +1,49 @@
+#include "HX711.h"
+
+// Pin configuration for HX711
+#define LOADCELL_DOUT_PIN  3
+#define LOADCELL_SCK_PIN   2
+
+// Buzzer pin
+#define BUZZER_PIN 8
+
+// Threshold weight value (adjust according to your needs)
+const float thresholdWeight = 100.0; // in grams
+
+HX711 scale;
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Initialize the scale
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  
+  // Initialize the buzzer pin
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW); // Buzzer off initially
+  
+  // Zero out the scale (tare)
+  scale.tare();
+  
+  Serial.println("Scale is ready!");
+}
+
+void loop() {
+  // Read the weight value
+  float weight = scale.get_units(10); // Averaging over 10 readings
+  
+  Serial.print("Weight: ");
+  Serial.print(weight);
+  Serial.println(" g");
+  
+  // Check if weight is less than the threshold
+  if (weight < thresholdWeight) {
+    // Turn on the buzzer
+    digitalWrite(BUZZER_PIN, HIGH);
+  } else {
+    // Turn off the buzzer
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+  
+  delay(500); // Delay for stability
+}
